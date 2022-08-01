@@ -2,84 +2,88 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import BlogItem from './BlogItem'
 import Spinner from './Spinner'
+import InfiniteScroll from "react-infinite-scroll-component";
 export class Blog extends Component {
+  static defaultProps = {
+    country: "in",
+    pageSize: 10,
+    category: "general",
+  };
 
-    static defaultProps = {
-    country: 'in',
-    pageSize: 8,
-    category: 'general',
-    }
-
-    static propTypes = {
+  static propTypes = {
     country: PropTypes.string,
     pageSize: PropTypes.number,
     category: PropTypes.string,
-    }
+  };
 
-
-  constructor(props){
+  constructor(props) {
     super(props);
-    this.state= {
+    this.state = {
       articles: [],
       loading: false,
-      page: 1
-    }
+      page: 1,
+      totalResults: 0,
+    };
   }
 
   async updateNews() {
-    const url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=dbe57b028aeb41e285a226a94865f7a7&page=${this.state.page}&pageSize=${this.props.pageSize}`;
-    this.setState({ loading: true });
+    const url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=${this.props.apiKey}&page=${this.state.page}&pageSize=${this.props.pageSize}`;
+    this.setState({ page: this.state.page + 1 });
     let data = await fetch(url);
-    let parsedData = await data.json() 
+    let parsedData = await data.json();
     this.setState({
-        articles: parsedData.articles,
-        totalResults: parsedData.totalResults,
-        loading: false
-    })
-
+      articles: parsedData.articles,
+      totalResults: parsedData.totalResults,
+    });
+  }
+  async componentDidMount() {
+    this.updateNews();
   }
 
-  async componentDidMount(){
-  this.updateNews();
-  }
-
-
-  handlePrevious = async()=>{
-  this.setState({ page: this.state.page - 1 });
-  this.updateNews()
-  }
-
-
-  handleNext = async()=>{
-  this.setState({ page: this.state.page + 1 });
-        this.updateNews()
-  }
-
+  fetchMoreData = async () => {
+    this.setState({ page: this.state.page + 1 });
+    const url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=${this.props.apiKey}&page=${this.state.page}&pageSize=${this.props.pageSize}`;
+    let data = await fetch(url);
+    let parsedData = await data.json();
+    this.setState({
+      articles: this.state.articles.concat(parsedData.articles),
+      totalResults: parsedData.totalResults,
+    });
+  };
 
   render() {
     return (
-      <div className='container'>
-        <h1 className='text-2xl text-center mt-3 font-semibold'>top headlines</h1>
-       {this.state.loading && <Spinner/>}
-        <div className="row mt-4">
-        {!this.state.loading && this.state.articles.map((element) => {
-          return <div className="col-md-4 my-3" key={element.url}>
-                  <BlogItem tittle={element.title?element.title:"fuck me"} discription= {element.description} imgUrl= {element.urlToImage?element.urlToImage:"http://beta.ems.ladbiblegroup.com/s3/content/808x455/0bb079b75d654f14eec508e0ffc957eb.png"} url= {element.url} publishedAt= {element.publishedAt} publisher = {element.source.name} />
-                </div>
-        })}
+        <InfiniteScroll
+          dataLength={this.state.articles.length}
+          next={this.fetchMoreData}
+          hasMore={this.state.articles.length !== this.totalResults}
+          loader={<Spinner />}
+        >
+          <div className="container">
+            <h1 className="text-2xl text-center mt-3 font-semibold">
+              top headlines
+            </h1>
 
-        </div>
-
-
-        <div className="container d-flex justify-between my-2">
-        <button type="button" disabled={this.state.page<=1} className="btn btn-dark bg-slate-600" onClick={this.handlePrevious}> previous </button>
-
-        <button type="button" disabled={this.state.page + 1 > Math.ceil(this.state.totalResults/this.props.pageSize)} className="btn btn-dark bg-slate-600" onClick={this.handleNext}>next</button>
-
-        </div>
-      </div>
-
-    )
+            <div className="row mt-4">
+              {this.state.articles.map((element) => {
+                return (
+                  <div className="col-md-4 my-3" key={element.url}>
+                    <BlogItem tittle={element.title ? element.title : "News"} description={element.description} imgUrl={
+                        element.urlToImage
+                          ? element.urlToImage
+                          : "http://beta.ems.ladbiblegroup.com/s3/content/808x455/0bb079b75d654f14eec508e0ffc957eb.png"
+                      }
+                      url={element.url}
+                      publishedAt={element.publishedAt}
+                      publisher={element.source.name}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </InfiniteScroll>
+    );
   }
 }
 
