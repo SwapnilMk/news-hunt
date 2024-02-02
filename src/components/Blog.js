@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import BlogItem from './BlogItem';
-import Spinner from './Spinner';
-import InfiniteScroll from 'react-infinite-scroll-component';
+// import Spinner from './Spinner';
+// import InfiniteScroll from 'react-infinite-scroll-component';
 
 export class Blog extends Component {
   static defaultProps = {
@@ -26,6 +26,9 @@ export class Blog extends Component {
       totalResults: 0,
     };
   }
+
+
+  
 
   async updateNews() {
     const url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=${this.props.apiKey}&page=${this.state.page}&pageSize=${this.props.pageSize}`;
@@ -53,14 +56,15 @@ export class Blog extends Component {
     });
   };
 
+
   render() {
     return (
-      <InfiniteScroll
-        dataLength={this.state.articles.length}
-        next={this.fetchMoreData}
-        hasMore={this.state.articles.length !== this.state.totalResults}
-        loader={<Spinner />}
-      >
+      // <InfiniteScroll
+      //   dataLength={this.state.articles.length}
+      //   next={this.fetchMoreData}
+      //   hasMore={this.state.articles.length !== this.state.totalResults}
+      //   loader={<Spinner />}
+      // >
         <div className="container">
           <h1 className="text-2xl text-center mt-3 font-semibold">
             Top Headlines
@@ -80,7 +84,7 @@ export class Blog extends Component {
             ))}
           </div>
         </div>
-      </InfiniteScroll>
+      // </InfiniteScroll>
     );
   }
 }
