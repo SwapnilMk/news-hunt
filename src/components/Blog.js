@@ -1,8 +1,9 @@
-import PropTypes from 'prop-types'
-import React, { Component } from 'react'
-import BlogItem from './BlogItem'
-import Spinner from './Spinner'
-import InfiniteScroll from "react-infinite-scroll-component";
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import BlogItem from './BlogItem';
+import Spinner from './Spinner';
+import InfiniteScroll from 'react-infinite-scroll-component';
+
 export class Blog extends Component {
   static defaultProps = {
     country: "in",
@@ -36,6 +37,7 @@ export class Blog extends Component {
       totalResults: parsedData.totalResults,
     });
   }
+
   async componentDidMount() {
     this.updateNews();
   }
@@ -53,38 +55,34 @@ export class Blog extends Component {
 
   render() {
     return (
-        <InfiniteScroll
-          dataLength={this.state.articles.length}
-          next={this.fetchMoreData}
-          hasMore={this.state.articles.length !== this.totalResults}
-          loader={<Spinner />}
-        >
-          <div className="container">
-            <h1 className="text-2xl text-center mt-3 font-semibold">
-              top headlines
-            </h1>
-
-            <div className="row mt-4">
-              {this.state.articles.map((element) => {
-                return (
-                  <div className="col-md-4 my-3" key={element.url}>
-                    <BlogItem tittle={element.title ? element.title : "News"} description={element.description} imgUrl={
-                        element.urlToImage
-                          ? element.urlToImage
-                          : "http://beta.ems.ladbiblegroup.com/s3/content/808x455/0bb079b75d654f14eec508e0ffc957eb.png"
-                      }
-                      url={element.url}
-                      publishedAt={element.publishedAt}
-                      publisher={element.source.name}
-                    />
-                  </div>
-                );
-              })}
-            </div>
+      <InfiniteScroll
+        dataLength={this.state.articles.length}
+        next={this.fetchMoreData}
+        hasMore={this.state.articles.length !== this.state.totalResults}
+        loader={<Spinner />}
+      >
+        <div className="container">
+          <h1 className="text-2xl text-center mt-3 font-semibold">
+            Top Headlines
+          </h1>
+          <div className="row mt-4">
+            {this.state.articles.map((element) => (
+              <div className="col-md-4 my-3" key={element.url}>
+                <BlogItem
+                  title={element.title ? element.title : "News"}
+                  description={element.description}
+                  imgUrl={element.urlToImage ? element.urlToImage : "http://beta.ems.ladbiblegroup.com/s3/content/808x455/0bb079b75d654f14eec508e0ffc957eb.png"}
+                  url={element.url}
+                  publishedAt={element.publishedAt}
+                  publisher={element.source.name}
+                />
+              </div>
+            ))}
           </div>
-        </InfiniteScroll>
+        </div>
+      </InfiniteScroll>
     );
   }
 }
 
-export default Blog
+export default Blog;
